@@ -4,13 +4,13 @@
 
 int Node::classificationOutput()
 {
-    // returns the most common class in outputsClassification
-    if (outputsClassification.empty()) {
+    // returns the most common class in valuesClassification
+    if (valuesClassification.empty()) {
         return -1; // No classes available
     }
 
-    std::vector<int> classCounts(*std::max_element(outputsClassification.begin(), outputsClassification.end()) + 1, 0);
-    for (int cls : outputsClassification) {
+    std::vector<int> classCounts(*std::max_element(valuesClassification.begin(), valuesClassification.end()) + 1, 0);
+    for (int cls : valuesClassification) {
         classCounts[cls]++;
     }
     int maxCount = classCounts[0];
@@ -25,10 +25,10 @@ int Node::classificationOutput()
 
 double Node::regressionOutput()
 {
-    // average of outputsRegression
-    if (outputsRegression.empty()) {
+    // average of valuesRegression
+    if (valuesRegression.empty()) {
         return 0.0; // No values available
     }
-    double sum = std::accumulate(outputsRegression.begin(), outputsRegression.end(), 0.0);
-    return sum / outputsRegression.size();
+    double sum = std::accumulate(valuesRegression.begin(), valuesRegression.end(), 0.0);
+    return sum / valuesRegression.size();
 }

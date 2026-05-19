@@ -12,7 +12,10 @@ public:
     std::vector<std::vector<double>> Y;
 
     Dataset() = default;
-
+    Dataset(std::size_t nrows, std::size_t ninputs) {
+        X.resize(nrows, std::vector<double>(ninputs, 0.0));
+        Y.resize(nrows); // outputs can be variable-length
+    }
     std::size_t nrows() const;
     std::size_t ninputs() const;
     std::size_t noutputs() const;

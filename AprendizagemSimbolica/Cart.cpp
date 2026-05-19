@@ -2,7 +2,7 @@
 #include <iostream>
 #include "TreeBuilder.hpp"
 
-void CART::saveModel(const std::string &path) const
+void CART::saveModel(const std::string &path)
 {
 }
 
@@ -10,7 +10,7 @@ void CART::loadModel(const std::string &path)
 {
 }
 
-void CART::printTree() const
+void CART::printTree()
 {
     if (nodes.empty()) {
         std::cout << "Empty tree." << std::endl;
