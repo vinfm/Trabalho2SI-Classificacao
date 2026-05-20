@@ -1,14 +1,3 @@
-// gerar_teste_cego.cpp
-// Gera um arquivo de teste cego SIMULADO no formato do enunciado
-// (i, qPA, pulso, resp), usando exatamente as 450 amostras do split
-// de teste interno (seed 42). Também salva o gabarito separado.
-//
-// Compila com:
-//   g++ -std=c++17 -O2 -I.. -o gerar_cego gerar_teste_cego.cpp ../Dataset.cpp
-//
-// Roda com:
-//   ./gerar_cego
-
 #include "../Dataset.hpp"
 #include <algorithm>
 #include <cmath>
