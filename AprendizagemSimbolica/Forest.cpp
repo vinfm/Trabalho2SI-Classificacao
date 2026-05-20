@@ -22,19 +22,13 @@ int Forest::predictClassification(const std::vector<double> &features)
     return std::distance(classCounts.begin(), std::max_element(classCounts.begin(), classCounts.end()));
 }
 
+// Filtro de rgressão prediction != 0 removido
 double Forest::predictRegression(const std::vector<double> &features)
 {
-    std::vector<double> predictions;
+    if (trees.empty()) return 0.0;
+    double sum = 0.0;
     for (DecisionTree* tree : trees) {
-        double prediction = tree->predictRegression(features);
-        if (prediction != 0.0) { // Assuming 0.0 means no prediction, adjust as needed
-            predictions.push_back(prediction);
-        }
+        sum += tree->predictRegression(features);
     }
-    
-    if (predictions.empty()) {
-        return 0.0; // No predictions available
-    }
-    double sum = std::accumulate(predictions.begin(), predictions.end(), 0.0);
-    return sum / predictions.size();
+    return sum / static_cast<double>(trees.size());
 }

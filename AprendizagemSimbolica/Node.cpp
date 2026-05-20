@@ -4,23 +4,25 @@
 
 int Node::classificationOutput()
 {
-    // returns the most common class in valuesClassification
     if (valuesClassification.empty()) {
-        return -1; // No classes available
+        return -1;
     }
 
-    std::vector<int> classCounts(*std::max_element(valuesClassification.begin(), valuesClassification.end()) + 1, 0);
+    int maxClass = *std::max_element(valuesClassification.begin(), valuesClassification.end());
+    std::vector<int> classCounts(maxClass + 1, 0);
     for (int cls : valuesClassification) {
         classCounts[cls]++;
     }
-    int maxCount = classCounts[0];
-    for (std::size_t i = 1; i < classCounts.size(); ++i) {
-        if (classCounts[i] > classCounts[i-1]) {
-            maxCount = classCounts[i];
+
+    int bestClass = 0;
+    int bestCount = -1;
+    for (std::size_t i = 0; i < classCounts.size(); ++i) {
+        if (classCounts[i] > bestCount) {
+            bestCount = classCounts[i];
+            bestClass = static_cast<int>(i);
         }
     }
-    return maxCount;
-
+    return bestClass;
 }
 
 double Node::regressionOutput()
