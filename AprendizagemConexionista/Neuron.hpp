@@ -1,3 +1,5 @@
+#ifndef NEURON_HPP
+#define NEURON_HPP
 #include <vector>
 #include <cstdio>
 #include <cmath>
@@ -12,18 +14,19 @@ private:
   float last_sum;
   float error;
   std::vector<float> last_change;
+  std::vector<float> current_change;
   LayerType   kind_of_layer;
   Activation activation = ACT_TANH;
 public:
   Neuron                 ();
   void initialize(size_t num_dentrites, LayerType kind);
-  void update_weights    ( float learn_rate, float momentum,
-               const std::vector<float> &outputs_previous_layer );
   float propagation      ( const std::vector<float> &outputs_previous_layer );
   float compute_sum      ( const std::vector<float> &outputs_previous_layer );
   void set_output_value  ( float v );
   float calculate_error  ( float weighted_error_next_level );
   float back_propagation(size_t index);
+  void update_weights(float learning_rate, float momentum, int batch_size);
+  void update_weights_changes(const std::vector<float> &outputs_previous_layer);
   float get_max_output_error(float target);
   float return_output    ( void ) { return(out);};
   ~Neuron                ();
@@ -32,7 +35,7 @@ public:
   void load_weights      ( FILE *fileNeuron );
   void reset_error();
   void set_activation(Activation a);
-  void normalize_error(int batch_size);
+  void normalize_change(int batch_size);
   float (*activation_function)(float) = nullptr;
   float (*activation_derivative)(float) = nullptr;
   static float tanh_activation(float x) { return tanh(x); }
@@ -43,3 +46,5 @@ public:
   static float sigmoid_derivative(float y) { return y * (1.0f - y); }
   static float relu_derivative(float y) { return y > 0 ? 1.0f : 0.0f; }
 };
+
+#endif

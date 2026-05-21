@@ -31,6 +31,9 @@ void Neuron::initialize (size_t num_dentrites, LayerType kind )
   last_change.resize(num_dentrites+1);
   for(i=0;i<=num_dentrites;i++)
     last_change[i] = 0.0f;
+  current_change.resize(num_dentrites+1);
+  for(i=0;i<=num_dentrites;i++)
+    current_change[i] = 0.0f;
   last_sum = 0.0f;
 
 }
@@ -85,19 +88,35 @@ float Neuron::back_propagation ( size_t index )
   return(weighted_error);
 }
 
-void Neuron::update_weights(float learn_rate, float momentum, const std::vector<float> &outputs_previous_layer)
+void Neuron::update_weights(float learning_rate, float momentum, int batch_size)
 {
-    float change;
+    normalize_change(batch_size);
     for(size_t i=0;i<number_inputs;i++)
     {
-      change = learn_rate * error * outputs_previous_layer[i] + momentum * last_change[i];
-      weights[i] += change;
-      last_change[i] = change;
+        float change = current_change[i] * learning_rate + last_change[i] * momentum;
+        weights[i] += change;
+        last_change[i] = change;
     }
-    change = learn_rate * error + momentum * last_change[number_inputs];
-    weights[number_inputs] += change;
-    last_change[number_inputs] = change;
-    error = 0.0f;
+
+    // Update bias weight
+    float bias_change = current_change[number_inputs] * learning_rate + last_change[number_inputs] * momentum;
+    weights[number_inputs] += bias_change;
+    last_change[number_inputs] = bias_change;
+
+    // Reset current changes for the next batch
+    for(size_t i=0;i<=number_inputs;i++)
+        current_change[i] = 0.0f;
+}
+
+void Neuron::update_weights_changes(const std::vector<float> &outputs_previous_layer)
+{
+  for (size_t i=0;i<number_inputs;i++)
+    {
+      current_change[i] += error * outputs_previous_layer[i];
+    }
+
+  // Update bias change
+  current_change[number_inputs] += error;
 }
 
 float Neuron::propagation(const std::vector<float> &outputs_previous_layer)
@@ -193,6 +212,10 @@ void Neuron::set_activation(Activation a)
       activation_function = softmax_exp;
       activation_derivative = nullptr;
       break;
+    case RELU:
+      activation_function = relu_activation;
+      activation_derivative = relu_derivative;
+      break;
     default:
       activation_function = tanh_activation;
       activation_derivative = tanh_derivative;
@@ -200,7 +223,12 @@ void Neuron::set_activation(Activation a)
   }
 }
 
-void Neuron::normalize_error(int batch_size)
+void Neuron::normalize_change(int batch_size)
 {
-    error /= static_cast<float>(batch_size);
+    for (size_t i = 0; i < number_inputs; ++i) {
+        current_change[i] /= static_cast<float>(batch_size);
+    }
+
+    // Normalize bias change
+    current_change[number_inputs] /= static_cast<float>(batch_size);
 }

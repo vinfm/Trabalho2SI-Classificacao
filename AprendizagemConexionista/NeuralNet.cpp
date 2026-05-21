@@ -46,15 +46,15 @@ void NeuralNet::set_parameters(float momentum, float learn_rate, float max_err)
     this->max_error = max_err;
 }
 
-void NeuralNet::update_layer(int number_of_layer)
+void NeuralNet::update_layer(int number_of_layer, int batch_size)
 {
     if (number_of_layer == 0)
     {
-        layers[0].update_weights(learning_rate, momentum, training_pair.first);
+        layers[0].update_weights(learning_rate, momentum, batch_size);
     }
     else
     {
-        layers[number_of_layer].update_weights(learning_rate, momentum, layers[number_of_layer-1].get_outputs());
+        layers[number_of_layer].update_weights(learning_rate, momentum, batch_size);
     }
 }
 
@@ -102,10 +102,25 @@ float NeuralNet::propagate_errors()
     return sample_output_err;
 }
 
-int NeuralNet::predictClassification(const std::vector<double> &features)
+void NeuralNet::accumulate_changes()
+{
+    if (number_of_layers <= 0) return;
+    layers[0].update_weights_changes(training_pair.first);
+    for (int i = 1; i < number_of_layers; ++i)
+    {
+        layers[i].update_weights_changes(layers[i-1].get_outputs());
+    }
+}
+
+void NeuralNet::update_layer_neurons_changes()
+{
+    accumulate_changes();
+}
+
+std::vector<double> NeuralNet::predict(const std::vector<double> &features)
 {
     if (number_of_layers <= 0)
-        return -1;
+        return std::vector<double>();
 
     std::vector<float> inputs((size_t)number_features, 0.0f);
     size_t limit = features.size() < inputs.size() ? features.size() : inputs.size();
@@ -118,49 +133,9 @@ int NeuralNet::predictClassification(const std::vector<double> &features)
 
     const std::vector<float> &outputs = layers[number_of_layers - 1].get_outputs();
     if (outputs.empty())
-        return -1;
+        return std::vector<double>();
 
-    int best_index = 0;
-    float best_value = outputs[0];
-    for (size_t i = 1; i < outputs.size(); ++i)
-    {
-        if (outputs[i] > best_value)
-        {
-            best_value = outputs[i];
-            best_index = static_cast<int>(i);
-        }
-    }
-    return best_index;
-}
-
-double NeuralNet::predictRegression(const std::vector<double> &features)
-{
-    if (number_of_layers <= 0)
-        return 0.0;
-
-    std::vector<float> inputs((size_t)number_features, 0.0f);
-    size_t limit = features.size() < inputs.size() ? features.size() : inputs.size();
-    for (size_t i = 0; i < limit; ++i)
-        inputs[i] = static_cast<float>(features[i]);
-
-    layers[0].propagate_outputs(inputs);
-    for (int i = 1; i < number_of_layers; ++i)
-        layers[i].propagate_outputs(layers[i - 1].get_outputs());
-
-    const std::vector<float> &outputs = layers[number_of_layers - 1].get_outputs();
-    if (outputs.empty())
-        return 0.0;
-
-    return static_cast<double>(outputs[0]);
-}
-
-void NeuralNet::normalize_error(int batch_size)
-{
-    // normalize the error for each sample in the net
-    for (int i = 0; i < number_of_layers; ++i)
-    {
-        layers[i].normalize_layer_error(batch_size);
-    }
+    return std::vector<double>(outputs.begin(), outputs.end());
 }
 
 NeuralNet::~NeuralNet()

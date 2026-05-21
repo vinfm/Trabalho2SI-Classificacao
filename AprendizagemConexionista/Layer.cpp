@@ -17,11 +17,11 @@ void Layer::initialize(int num_neurons, int num_inputs_per_neuron, LayerType kin
         neurons[i].initialize(num_inputs_per_neuron, kind);
 }
 
-void Layer::update_weights(float learn_rate, float momentum, const std::vector<float> &outputs_previous_layer)
+void Layer::update_weights(float learn_rate, float momentum, int batch_size)
 {
     for(size_t i=0;i<number_neurons;i++)
     {
-        neurons[i].update_weights(learn_rate, momentum, outputs_previous_layer);
+        neurons[i].update_weights(learn_rate, momentum, batch_size);
     }
 }
 
@@ -104,10 +104,10 @@ void Layer::set_activation(Activation a)
         neurons[i].set_activation(a);
 }
 
-void Layer::normalize_layer_error(int batch_size)
+void Layer::update_weights_changes(const std::vector<float> &outputs_previous_layer)
 {
     for(size_t i=0;i<number_neurons;i++)
-        neurons[i].normalize_error(batch_size);
+        neurons[i].update_weights_changes(outputs_previous_layer);
 }
 
 Layer::~Layer()

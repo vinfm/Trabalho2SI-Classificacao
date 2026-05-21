@@ -13,19 +13,13 @@ NeuralNet NeuralNetBuilder::build_net(int numberoflayers, vector<int> numberneur
     return net;
 }
 
-void NeuralNetBuilder::set_parameters(NeuralNet &net, float momentum, float learn_rate, float max_err, int batch_size)
-{
-    net.set_parameters(momentum, learn_rate, max_err);
-    this->batch_size = batch_size;
-}
-
-void NeuralNetBuilder::train_net(NeuralNet &net, int epochs, float test_fraction, unsigned seed)
+void NeuralNetBuilder::train_net(NeuralNet &net, int epochs, unsigned seed)
 {
     float previous_error = std::numeric_limits<float>::max();
+    float current_error = 0;
     int epoch = 0;
-    while (epoch < epochs && abs(previous_error - net.get_sum_sq_err()) > min_error) 
+    while (epoch < epochs && fabs(previous_error - current_error) > min_error) 
     {
-        previous_error = net.get_sum_sq_err();
         net.begin_epoch();
         for (int i=0; i<train_set.nrows(); i++)
         {
@@ -34,18 +28,43 @@ void NeuralNetBuilder::train_net(NeuralNet &net, int epochs, float test_fraction
             net.propagate_outputs();
 
             net.propagate_errors();
-            
+            net.update_layer_neurons_changes();
             if ((i+1) % batch_size == 0 || i == train_set.nrows() - 1) {
-                net.normalize_error(batch_size);
                 for (int j=0; j<net.get_num_layers(); j++) {
-                    net.update_layer(j);
+                    net.update_layer(j, batch_size);
                 }
             }
         }
         epoch++;
-        std::cout << "Epoch " << epoch << ": Sum of Squared Errors = " << net.get_sum_sq_err() << std::endl;
+        previous_error = current_error;
+        current_error = validation_error(net);
+        std::cout << "Epoch " << epoch << ": Validation Error = " << current_error << std::endl;
+        // dataset split for validation at each epoch to evaluate generalization
+        split_dataset(seed + epoch);
     }
 }
+
+void  NeuralNetBuilder::split_dataset(unsigned seed)
+{
+    dataset.split(test_fraction, seed, train_set, validation_set);
+}
+
+float NeuralNetBuilder::validation_error(NeuralNet &net)
+{
+    // uses the predict function then compares to validation_set.Y to compute error (e.g. mean squared error for regression, accuracy for classification)
+
+    float error_sum = 0.0f;
+    for (size_t i = 0; i < validation_set.nrows(); ++i) {
+        std::vector<double> predicted = net.predict(validation_set.X[i]);
+        const std::vector<double> &actual = validation_set.Y[i];
+        for (size_t j = 0; j < predicted.size() && j < actual.size(); ++j) {
+            float err = static_cast<float>(predicted[j] - actual[j]);
+            error_sum += err * err; // accumulate squared error
+        }
+    }
+    return error_sum / static_cast<float>(validation_set.nrows()); // return mean squared error
+}
+
 NeuralNetBuilder::~NeuralNetBuilder()
 {
 }
