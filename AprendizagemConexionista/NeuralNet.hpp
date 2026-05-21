@@ -32,6 +32,8 @@ public:
   void propagate_outputs(int number_of_layer);
   float propagate_errors ( int number_of_layer );
   float propagate_errors();
+  void set_activation(Activation a);
+  void set_activation_output_layer(Activation a);
   ~NeuralNet();
   void print_net         ( int layer );
   void save_net          (char *extension);

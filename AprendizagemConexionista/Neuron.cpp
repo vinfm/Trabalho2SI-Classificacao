@@ -58,10 +58,16 @@ float Neuron::calculate_error ( float weighted_error_next_layer )
     {
     case OUTPUT:
       target = weighted_error_next_layer;
-      error += (1.0 - out*out) * (target -out);
+      if (activation_derivative)
+        error += activation_derivative(out) * (target - out);
+      else
+        error += (1.0f - out*out) * (target - out);
       break;
     default:
-      error += (1.0 - out*out) *weighted_error_next_layer;
+      if (activation_derivative)
+        error += activation_derivative(out) * weighted_error_next_layer;
+      else
+        error += (1.0f - out*out) * weighted_error_next_layer;
       break;
     }
   return(error);
@@ -95,7 +101,7 @@ float Neuron::propagation(const std::vector<float> &outputs_previous_layer)
   for(size_t i=0;i<number_inputs;i++)
     sum += weights[i] * outputs_previous_layer[i];
   sum += weights[number_inputs]; // Bias term
-  out = tanh(sum);
+  out = activation_function(sum);
   return out;
 }
 
@@ -140,4 +146,24 @@ void Neuron::load_weights ( FILE *fileNeuron )
 void Neuron::reset_error()
 {
     error = 0.0f;
+}
+
+void Neuron::set_activation(Activation a)
+{
+  activation = a;
+  switch (activation)
+  {
+    case ACT_TANH:
+      activation_function = tanh_activation;
+      activation_derivative = tanh_derivative;
+      break;
+    case ACT_SIGMOID:
+      activation_function = sigmoid_activation;
+      activation_derivative = sigmoid_derivative;
+      break;
+    default:
+      activation_function = tanh_activation;
+      activation_derivative = tanh_derivative;
+      break;
+  }
 }

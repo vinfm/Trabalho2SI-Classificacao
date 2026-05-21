@@ -2,6 +2,7 @@
 #include <cstdio>
 
 enum LayerType {INPUT, INTERMED, OUTPUT};
+enum Activation {ACT_TANH, ACT_SIGMOID, RELU};
 class Neuron {
 private:
   std::vector<float> weights;
@@ -10,9 +11,11 @@ private:
   float error;
   std::vector<float> last_change;
   LayerType   kind_of_layer;
+  Activation activation = ACT_TANH;
 public:
   Neuron                 ();
   void initialize(size_t num_dentrites, LayerType kind);
+  void set_activation(Activation a) { activation = a; }
   void update_weights    ( float learn_rate, float momentum,
                const std::vector<float> &outputs_previous_layer );
   float propagation      ( const std::vector<float> &outputs_previous_layer );
@@ -25,4 +28,13 @@ public:
   void save_weights      ( FILE *fileNeuron );
   void load_weights      ( FILE *fileNeuron );
   void reset_error();
+  void set_activation(Activation a);
+  float (*activation_function)(float) = nullptr;
+  float (*activation_derivative)(float) = nullptr;
+  static float tanh_activation(float x) { return tanh(x); }
+  static float sigmoid_activation(float x) { return 1.0f / (1.0f + expf(-x)); }
+  static float relu_activation(float x) { return x > 0 ? x : 0; }
+  static float tanh_derivative(float y) { return 1.0f - y*y; } // input y is activation output
+  static float sigmoid_derivative(float y) { return y * (1.0f - y); }
+  static float relu_derivative(float y) { return y > 0 ? 1.0f : 0.0f; }
 };

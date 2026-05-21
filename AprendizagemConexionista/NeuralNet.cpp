@@ -5,6 +5,18 @@ NeuralNet::NeuralNet()
 {
 }
 
+void NeuralNet::set_activation(Activation a)
+{
+    for(size_t i=0;i<layers.size();++i)
+        layers[i].set_activation(a);
+}
+
+void NeuralNet::set_activation_output_layer(Activation a)
+{
+    if (number_of_layers <= 0) return;
+    layers[number_of_layers-1].set_activation(a);
+}
+
 void NeuralNet::create_net(int numberoflayers, vector<int> numberneuronslayer, int numberofinputs)
 {
     number_of_layers = numberoflayers;

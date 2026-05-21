@@ -19,6 +19,7 @@ public:
     const std::vector<float> &get_outputs() const;
     float backpropagation(int index);
     std::vector<float> backpropagation();
+    void set_activation(Activation a);
     void print_layer(int layer);
     void reset_errors();
     void save_layer(FILE *fileLayer);

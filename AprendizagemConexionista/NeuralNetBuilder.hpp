@@ -3,6 +3,7 @@
 #include "NeuralNet.hpp"
 #include "Dataset.hpp"
 #include <vector>
+#include <string>
 using namespace std;
 
 class NeuralNetBuilder {

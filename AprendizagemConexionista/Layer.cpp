@@ -68,6 +68,12 @@ void Layer::reset_errors()
     errors.clear();
 }
 
+void Layer::set_activation(Activation a)
+{
+    for(size_t i=0;i<number_neurons;i++)
+        neurons[i].set_activation(a);
+}
+
 Layer::~Layer()
 {
 }
