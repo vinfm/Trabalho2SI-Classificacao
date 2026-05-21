@@ -20,11 +20,14 @@ TreeBuilder::TreeBuilder(TreeType treeType, Dataset* trainData, Dataset* subtrai
 
 DecisionTree* TreeBuilder::CARTBuild()
 {
+    // Usa trainData_ (que pode ser o bootstrap sample da RF) como dado real
+    // de construcao da arvore. subtrainData_ ficou para compatibilidade.
+    Dataset* data = trainData_ ? trainData_ : subtrainData_;
     splitter_ = Splitter(
         impurity_measure_,
-        subtrainData_->X,
-        subtrainData_->Y,
-        subtrainData_->ninputs(),
+        data->X,
+        data->Y,
+        data->ninputs(),
         max_features_,
         min_samples_leaf_);
     
@@ -34,7 +37,7 @@ DecisionTree* TreeBuilder::CARTBuild()
     Node root;
     root.isLeaf = false;
     root.depth = 0;
-    root.sampleIndices.resize(subtrainData_->nrows());
+    root.sampleIndices.resize(data->nrows());
     std::iota(root.sampleIndices.begin(), root.sampleIndices.end(), 0);
 
     // create tree with root node (DecisionTree constructor will push root)
@@ -107,6 +110,8 @@ DecisionTree* TreeBuilder::CARTBuild()
 
 void TreeBuilder::CalculateNodeOutput(Node &node)
 {
+    // Le os Y do dataset efetivo usado em CARTBuild (bootstrap, se vindo da RF)
+    Dataset* data = trainData_ ? trainData_ : subtrainData_;
     Criteria criteria(impurity_measure_);
     if (treeType_ == TreeType::Classification) {
         node.valuesClassification.clear();
@@ -114,7 +119,7 @@ void TreeBuilder::CalculateNodeOutput(Node &node)
         labels.reserve(node.sampleIndices.size());
         for (std::size_t si : node.sampleIndices) {
             double v = 0.0;
-            if (si < subtrainData_->Y.size() && !subtrainData_->Y[si].empty()) v = subtrainData_->Y[si][0];
+            if (si < data->Y.size() && !data->Y[si].empty()) v = data->Y[si][0];
             node.valuesClassification.push_back(static_cast<int>(v));
             labels.push_back(v);
         }
@@ -129,7 +134,7 @@ void TreeBuilder::CalculateNodeOutput(Node &node)
         outputs.reserve(node.sampleIndices.size());
         for (std::size_t si : node.sampleIndices) {
             double v = 0.0;
-            if (si < subtrainData_->Y.size() && !subtrainData_->Y[si].empty()) v = subtrainData_->Y[si][0];
+            if (si < data->Y.size() && !data->Y[si].empty()) v = data->Y[si][0];
             node.valuesRegression.push_back(v);
             outputs.push_back(v);
         }
