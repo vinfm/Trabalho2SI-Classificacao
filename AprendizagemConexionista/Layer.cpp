@@ -1,4 +1,6 @@
 #include "Layer.hpp"
+#include <limits>
+#include <cmath>
 
 Layer::Layer()
 {
@@ -10,6 +12,7 @@ void Layer::initialize(int num_neurons, int num_inputs_per_neuron, LayerType kin
     number_inputs_per_neuron = num_inputs_per_neuron;
     kind_of_layer = kind;
     neurons =  std::vector<Neuron>(number_neurons);
+    current_activation = ACT_TANH;
     for(size_t i=0;i<number_neurons;i++)
         neurons[i].initialize(num_inputs_per_neuron, kind);
 }
@@ -25,9 +28,35 @@ void Layer::update_weights(float learn_rate, float momentum, const std::vector<f
 void Layer::propagate_outputs(const std::vector<float> &outputs_previous_layer)
 {
     outputs.clear();
-    for(size_t i=0;i<number_neurons;i++)
+    if (current_activation == ACT_SOFTMAX)
     {
-        outputs.push_back(neurons[i].propagation(outputs_previous_layer));
+        std::vector<float> sums;
+        sums.reserve(number_neurons);
+        float max_sum = -std::numeric_limits<float>::infinity();
+        for (size_t i = 0; i < (size_t)number_neurons; ++i) {
+            float s = neurons[i].compute_sum(outputs_previous_layer);
+            sums.push_back(s);
+            if (s > max_sum) max_sum = s;
+        }
+        float sum_exp = 0.0f;
+        std::vector<float> exps(number_neurons);
+        for (size_t i = 0; i < (size_t)number_neurons; ++i) {
+            float e = expf(sums[i] - max_sum);
+            exps[i] = e;
+            sum_exp += e;
+        }
+        for (size_t i = 0; i < (size_t)number_neurons; ++i) {
+            float val = exps[i] / sum_exp;
+            neurons[i].set_output_value(val);
+            outputs.push_back(val);
+        }
+    }
+    else
+    {
+        for(size_t i=0;i<number_neurons;i++)
+        {
+            outputs.push_back(neurons[i].propagation(outputs_previous_layer));
+        }
     }
 }
 
@@ -70,6 +99,7 @@ void Layer::reset_errors()
 
 void Layer::set_activation(Activation a)
 {
+    current_activation = a;
     for(size_t i=0;i<number_neurons;i++)
         neurons[i].set_activation(a);
 }

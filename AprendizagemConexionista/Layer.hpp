@@ -10,6 +10,7 @@ private:
     std::vector<Neuron> neurons;
     std::vector<float> outputs;
     std::vector<float> errors;
+    Activation current_activation;
 public:
     Layer();
     void initialize(int num_neurons, int num_inputs_per_neuron, LayerType kind);

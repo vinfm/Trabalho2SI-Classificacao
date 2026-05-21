@@ -31,6 +31,7 @@ void Neuron::initialize (size_t num_dentrites, LayerType kind )
   last_change.resize(num_dentrites+1);
   for(i=0;i<=num_dentrites;i++)
     last_change[i] = 0.0f;
+  last_sum = 0.0f;
 
 }
 
@@ -58,10 +59,14 @@ float Neuron::calculate_error ( float weighted_error_next_layer )
     {
     case OUTPUT:
       target = weighted_error_next_layer;
-      if (activation_derivative)
+      if (activation == ACT_SOFTMAX) {
+        // softmax + cross-entropy: gradient simplifies to (target - out)
+        error += (target - out);
+      } else if (activation_derivative) {
         error += activation_derivative(out) * (target - out);
-      else
+      } else {
         error += (1.0f - out*out) * (target - out);
+      }
       break;
     default:
       if (activation_derivative)
@@ -101,8 +106,31 @@ float Neuron::propagation(const std::vector<float> &outputs_previous_layer)
   for(size_t i=0;i<number_inputs;i++)
     sum += weights[i] * outputs_previous_layer[i];
   sum += weights[number_inputs]; // Bias term
-  out = activation_function(sum);
+  last_sum = sum;
+  if (activation == ACT_SOFTMAX) {
+    if (activation_function)
+      out = activation_function(sum); // exp(sum)
+    else
+      out = expf(sum);
+  } else {
+    out = activation_function(sum);
+  }
   return out;
+}
+
+float Neuron::compute_sum(const std::vector<float> &outputs_previous_layer)
+{
+    float sum = 0.0f;
+    for(size_t i=0;i<number_inputs;i++)
+      sum += weights[i] * outputs_previous_layer[i];
+    sum += weights[number_inputs];
+    last_sum = sum;
+    return sum;
+}
+
+void Neuron::set_output_value(float v)
+{
+    out = v;
 }
 
 Neuron::~Neuron ()
@@ -160,6 +188,10 @@ void Neuron::set_activation(Activation a)
     case ACT_SIGMOID:
       activation_function = sigmoid_activation;
       activation_derivative = sigmoid_derivative;
+      break;
+    case ACT_SOFTMAX:
+      activation_function = softmax_exp;
+      activation_derivative = nullptr;
       break;
     default:
       activation_function = tanh_activation;
