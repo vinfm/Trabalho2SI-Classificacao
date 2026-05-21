@@ -20,6 +20,8 @@ void NeuralNet::set_activation_output_layer(Activation a)
 void NeuralNet::create_net(int numberoflayers, vector<int> numberneuronslayer, int numberofinputs)
 {
     number_of_layers = numberoflayers;
+    number_features = numberofinputs;
+    number_outputs = numberneuronslayer.empty() ? 0 : numberneuronslayer.back();
     layers.resize(number_of_layers);
     for(size_t i=0;i<number_of_layers;i++)
     {
@@ -100,6 +102,57 @@ float NeuralNet::propagate_errors()
     return sample_output_err;
 }
 
+int NeuralNet::predictClassification(const std::vector<double> &features)
+{
+    if (number_of_layers <= 0)
+        return -1;
+
+    std::vector<float> inputs((size_t)number_features, 0.0f);
+    size_t limit = features.size() < inputs.size() ? features.size() : inputs.size();
+    for (size_t i = 0; i < limit; ++i)
+        inputs[i] = static_cast<float>(features[i]);
+
+    layers[0].propagate_outputs(inputs);
+    for (int i = 1; i < number_of_layers; ++i)
+        layers[i].propagate_outputs(layers[i - 1].get_outputs());
+
+    const std::vector<float> &outputs = layers[number_of_layers - 1].get_outputs();
+    if (outputs.empty())
+        return -1;
+
+    int best_index = 0;
+    float best_value = outputs[0];
+    for (size_t i = 1; i < outputs.size(); ++i)
+    {
+        if (outputs[i] > best_value)
+        {
+            best_value = outputs[i];
+            best_index = static_cast<int>(i);
+        }
+    }
+    return best_index;
+}
+
+double NeuralNet::predictRegression(const std::vector<double> &features)
+{
+    if (number_of_layers <= 0)
+        return 0.0;
+
+    std::vector<float> inputs((size_t)number_features, 0.0f);
+    size_t limit = features.size() < inputs.size() ? features.size() : inputs.size();
+    for (size_t i = 0; i < limit; ++i)
+        inputs[i] = static_cast<float>(features[i]);
+
+    layers[0].propagate_outputs(inputs);
+    for (int i = 1; i < number_of_layers; ++i)
+        layers[i].propagate_outputs(layers[i - 1].get_outputs());
+
+    const std::vector<float> &outputs = layers[number_of_layers - 1].get_outputs();
+    if (outputs.empty())
+        return 0.0;
+
+    return static_cast<double>(outputs[0]);
+}
 NeuralNet::~NeuralNet()
 {
 }

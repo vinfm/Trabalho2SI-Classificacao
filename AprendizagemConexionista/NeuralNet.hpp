@@ -32,8 +32,10 @@ public:
   void propagate_outputs(int number_of_layer);
   float propagate_errors ( int number_of_layer );
   float propagate_errors();
+  int predictClassification(const std::vector<double> &features);
   void set_activation(Activation a);
   void set_activation_output_layer(Activation a);
+  double predictRegression(const std::vector<double> &features);
   ~NeuralNet();
   void print_net         ( int layer );
   void save_net          (char *extension);
