@@ -52,10 +52,12 @@ DecisionTree* TreeBuilder::CARTBuild()
         auto [idx, depth] = idx_stack.back(); idx_stack.pop_back();
         Node &node = nodes[idx];
 
+        // Calcula impurity e valores do nó ANTES de decidir se vira folha
+        CalculateNodeOutput(node);
+
         std::size_t n_samples = node.sampleIndices.size();
         if (node.isLeaf || n_samples < static_cast<std::size_t>(min_samples_split_) || node.impurity < min_impurity_split_ || depth >= max_depth_) {
             node.isLeaf = true;
-            CalculateNodeOutput(node);
             continue;
         }
 
@@ -70,9 +72,9 @@ DecisionTree* TreeBuilder::CARTBuild()
         splitter_.SplitNode(bestSplit);
         if (bestSplit.featureIndex == -1) {
             node.isLeaf = true;
-            CalculateNodeOutput(node);
             continue;
         }
+        
         node.featureIndex = bestSplit.featureIndex;
         node.threshold = bestSplit.threshold;
 
@@ -92,8 +94,8 @@ DecisionTree* TreeBuilder::CARTBuild()
         nodes.push_back(std::move(rightChild));
 
         // link parent to children
-        node.left = leftIdx;
-        node.right = rightIdx;
+        nodes[idx].left = leftIdx;
+        nodes[idx].right = rightIdx;
 
         // push children indices for further splitting
         idx_stack.emplace_back(rightIdx, depth + 1);

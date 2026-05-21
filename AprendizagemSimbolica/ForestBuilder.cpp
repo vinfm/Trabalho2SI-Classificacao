@@ -18,12 +18,8 @@ ForestBuilder::ForestBuilder(TreeType treeType, Dataset *trainData, Dataset *sub
     n_trees_ = n_trees;
     forest_ = nullptr;
 
-    if (trainData->nrows() > subtrainData->nrows()) {
-        max_features_ = std::ceil(std::sqrt(n_features_));
-    }
-    else {
-        max_features_ = n_features_;
-    }
+    max_features_ = std::max<std::size_t>(
+        1, static_cast<std::size_t>(std::ceil(std::sqrt(static_cast<double>(n_features_)))));
 }
 
 Forest *ForestBuilder::buildForest()
