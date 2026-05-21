@@ -25,6 +25,7 @@ public:
     void reset_errors();
     void save_layer(FILE *fileLayer);
     void load_layer(FILE *fileLayer);
+    void normalize_layer_error(int batch_size);
     ~Layer();
 };
 #endif

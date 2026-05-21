@@ -153,6 +153,16 @@ double NeuralNet::predictRegression(const std::vector<double> &features)
 
     return static_cast<double>(outputs[0]);
 }
+
+void NeuralNet::normalize_error(int batch_size)
+{
+    // normalize the error for each sample in the net
+    for (int i = 0; i < number_of_layers; ++i)
+    {
+        layers[i].normalize_layer_error(batch_size);
+    }
+}
+
 NeuralNet::~NeuralNet()
 {
 }

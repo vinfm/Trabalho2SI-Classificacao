@@ -32,6 +32,7 @@ public:
   void load_weights      ( FILE *fileNeuron );
   void reset_error();
   void set_activation(Activation a);
+  void normalize_error(int batch_size);
   float (*activation_function)(float) = nullptr;
   float (*activation_derivative)(float) = nullptr;
   static float tanh_activation(float x) { return tanh(x); }

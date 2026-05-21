@@ -199,3 +199,8 @@ void Neuron::set_activation(Activation a)
       break;
   }
 }
+
+void Neuron::normalize_error(int batch_size)
+{
+    error /= static_cast<float>(batch_size);
+}

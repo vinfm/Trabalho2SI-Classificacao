@@ -104,6 +104,12 @@ void Layer::set_activation(Activation a)
         neurons[i].set_activation(a);
 }
 
+void Layer::normalize_layer_error(int batch_size)
+{
+    for(size_t i=0;i<number_neurons;i++)
+        neurons[i].normalize_error(batch_size);
+}
+
 Layer::~Layer()
 {
 }

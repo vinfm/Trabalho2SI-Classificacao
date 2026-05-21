@@ -36,12 +36,12 @@ void NeuralNetBuilder::train_net(NeuralNet &net, int epochs, float test_fraction
             net.propagate_errors();
             
             if ((i+1) % batch_size == 0 || i == train_set.nrows() - 1) {
+                net.normalize_error(batch_size);
                 for (int j=0; j<net.get_num_layers(); j++) {
                     net.update_layer(j);
                 }
             }
         }
-
         epoch++;
         std::cout << "Epoch " << epoch << ": Sum of Squared Errors = " << net.get_sum_sq_err() << std::endl;
     }
