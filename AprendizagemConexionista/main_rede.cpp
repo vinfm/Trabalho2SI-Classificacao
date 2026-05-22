@@ -24,7 +24,7 @@ static void normalizeInputs(std::vector<std::vector<double>>& X) {
     static constexpr double SI4_MAX = 200.0;
     static constexpr double SI5_MIN = 0.0;
     static constexpr double SI5_MAX = 22.0;
-    static constexpr double INPUT_NORMALIZE_MIN = -1.0;
+    static constexpr double INPUT_NORMALIZE_MIN = 0.0;
     static constexpr double INPUT_NORMALIZE_MAX = 1.0;
     std::vector<double> source_min = {SI3_MIN, SI4_MIN, SI5_MIN};
     std::vector<double> source_max = {SI3_MAX, SI4_MAX, SI5_MAX};
@@ -33,9 +33,9 @@ static void normalizeInputs(std::vector<std::vector<double>>& X) {
 
 // Configurable parameters
 
-static const Activation CLASSIFICATION_HIDDEN_LAYER_ACTIVATION = ACT_TANH;
+static const Activation CLASSIFICATION_HIDDEN_LAYER_ACTIVATION = ACT_SIGMOID;
 static const Activation CLASSIFICATION_OUTPUT_LAYER_ACTIVATION = ACT_SOFTMAX;
-static const Activation REGRESSION_HIDDEN_LAYER_ACTIVATION = ACT_TANH;
+static const Activation REGRESSION_HIDDEN_LAYER_ACTIVATION = ACT_SIGMOID;
 static const Activation REGRESSION_OUTPUT_LAYER_ACTIVATION = ACT_LINEAR;
 static const std::vector<int> CLASS_LABELS = {1,2,3,4};
 static const std::vector<int> TRAIN_INPUT_COLUMNS = {4,5,6};
@@ -43,14 +43,14 @@ static const std::vector<int> BLIND_INPUT_COLUMNS = {2,3,4};
 static const std::vector<int> BLIND_LEGACY_COLUMNS = {4,5,6};
 static constexpr double BLIND_RELOAD_THRESHOLD = 10.5;
 static constexpr int NETWORK_LAYER_COUNT = 2;
-static const std::vector<int> CLASSIFICATION_NEURONS_PER_LAYER = {12, 4};
+static const std::vector<int> CLASSIFICATION_NEURONS_PER_LAYER = {8, 4};
 static const std::vector<int> REGRESSION_NEURONS_PER_LAYER = {8, 1};
-static constexpr int EPOCHS = 100;
-static constexpr int BATCH_SIZE = 8;
-static constexpr float CLASSIFICATION_LEARNING_RATE = 0.01f;
+static constexpr int EPOCHS = 1000;
+static constexpr int BATCH_SIZE = 1;
+static constexpr float CLASSIFICATION_LEARNING_RATE = 0.03f;
 static constexpr float REGRESSION_LEARNING_RATE = 0.00001f;
-static constexpr float CLASSIFICATION_MOMENTUM = 0.9f;
-static constexpr float REGRESSION_MOMENTUM = 0.0f;
+static constexpr float CLASSIFICATION_MOMENTUM = 0.6f;
+static constexpr float REGRESSION_MOMENTUM = 0.2f;
 static constexpr float MIN_ERROR = 1e-6f;
 static constexpr float VALIDATION_FRACTION = 0.2f;
 static constexpr double TRAIN_TEST_FRACTION = 0.30;
