@@ -50,6 +50,7 @@ void Layer::propagate_outputs(const std::vector<float> &outputs_previous_layer)
             neurons[i].set_output_value(val);
             outputs.push_back(val);
         }
+        
     }
     else
     {

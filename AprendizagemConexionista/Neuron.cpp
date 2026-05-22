@@ -15,6 +15,8 @@ Neuron::Neuron()
 {
   out = 0;
   error = 0;
+  activation_function = tanh_activation;
+  activation_derivative = tanh_derivative;
 }
 
 void Neuron::initialize (size_t num_dentrites, LayerType kind )
@@ -63,8 +65,7 @@ float Neuron::calculate_error ( float weighted_error_next_layer )
     case OUTPUT:
       target = weighted_error_next_layer;
       if (activation == ACT_SOFTMAX) {
-        // softmax + cross-entropy: gradient simplifies to (target - out)
-        error += (target - out);
+        error += target - out;
       } else if (activation_derivative) {
         error += activation_derivative(out) * (target - out);
       } else {
@@ -115,7 +116,6 @@ void Neuron::update_weights_changes(const std::vector<float> &outputs_previous_l
       current_change[i] += error * outputs_previous_layer[i];
     }
 
-  // Update bias change
   current_change[number_inputs] += error;
 }
 
@@ -127,10 +127,7 @@ float Neuron::propagation(const std::vector<float> &outputs_previous_layer)
   sum += weights[number_inputs]; // Bias term
   last_sum = sum;
   if (activation == ACT_SOFTMAX) {
-    if (activation_function)
-      out = activation_function(sum); // exp(sum)
-    else
-      out = expf(sum);
+    out = sum;
   } else {
     out = activation_function(sum);
   }

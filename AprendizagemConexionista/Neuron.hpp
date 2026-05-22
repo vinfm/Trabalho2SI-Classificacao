@@ -16,7 +16,7 @@ private:
   std::vector<float> last_change;
   std::vector<float> current_change;
   LayerType   kind_of_layer;
-  Activation activation = ACT_TANH;
+  Activation activation;
 public:
   Neuron                 ();
   void initialize(size_t num_dentrites, LayerType kind);
@@ -36,13 +36,13 @@ public:
   void reset_error();
   void set_activation(Activation a);
   void normalize_change(int batch_size);
-  float (*activation_function)(float) = nullptr;
-  float (*activation_derivative)(float) = nullptr;
-  static float tanh_activation(float x) { return tanh(x); }
-  static float sigmoid_activation(float x) { return 1.0f / (1.0f + expf(-x)); }
-  static float relu_activation(float x) { return x > 0 ? x : 0; }
+  float (*activation_function)(float);
+  float (*activation_derivative)(float);
+  static float tanh_activation(float x) { return std::tanh(x); }
+  static float sigmoid_activation(float x) { return 1.0f / (1.0f + std::exp(-x)); }
+  static float relu_activation(float x) { return x > 0.0f ? x : 0.0f; }
   static float linear_activation(float x) { return x; }
-  static float softmax_exp(float x) { return expf(x); }
+  static float softmax_exp(float x) { return std::exp(x); }
   static float tanh_derivative(float y) { return 1.0f - y*y; } // input y is activation output
   static float sigmoid_derivative(float y) { return y * (1.0f - y); }
   static float relu_derivative(float y) { return y > 0 ? 1.0f : 0.0f; }
