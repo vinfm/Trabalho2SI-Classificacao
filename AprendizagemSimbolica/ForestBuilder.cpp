@@ -31,7 +31,9 @@ Forest *ForestBuilder::buildForest()
         TreeBuilder* builder = new TreeBuilder
         (treeType_, bootstrap_data, subtrainData_, min_samples_leaf_, max_depth_,
              min_samples_split_, min_impurity_split_, n_features_);
-        builder->setRandomSeed(i);
+        // Random subspace: cada split avalia apenas max_features_ atributos
+        builder->setMaxFeatures(max_features_);
+        builder->setRandomSeed(static_cast<unsigned>(i) + 1u);
         DecisionTree* tree = builder->CARTBuild();
         forest_->addTree(tree);
         delete bootstrap_data;
