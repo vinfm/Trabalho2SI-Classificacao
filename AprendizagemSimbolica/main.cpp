@@ -3,7 +3,7 @@
 #include "TreeBuilder.hpp"
 #include "Cart.hpp"
 #include "../Dataset.hpp"
-#include "Metrics.hpp"
+#include "../Metrics.hpp"
 
 #include <algorithm>
 #include <cmath>

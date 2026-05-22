@@ -216,6 +216,10 @@ void Neuron::set_activation(Activation a)
       activation_function = relu_activation;
       activation_derivative = relu_derivative;
       break;
+    case ACT_LINEAR:
+      activation_function = linear_activation;
+      activation_derivative = linear_derivative;
+      break;
     default:
       activation_function = tanh_activation;
       activation_derivative = tanh_derivative;

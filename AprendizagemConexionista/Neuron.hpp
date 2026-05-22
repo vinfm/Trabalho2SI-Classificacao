@@ -5,7 +5,7 @@
 #include <cmath>
 
 enum LayerType {INPUT, INTERMED, OUTPUT};
-enum Activation {ACT_TANH, ACT_SIGMOID, RELU, ACT_SOFTMAX};
+enum Activation {ACT_TANH, ACT_SIGMOID, RELU, ACT_SOFTMAX, ACT_LINEAR};
 class Neuron {
 private:
   std::vector<float> weights;
@@ -41,10 +41,12 @@ public:
   static float tanh_activation(float x) { return tanh(x); }
   static float sigmoid_activation(float x) { return 1.0f / (1.0f + expf(-x)); }
   static float relu_activation(float x) { return x > 0 ? x : 0; }
+  static float linear_activation(float x) { return x; }
   static float softmax_exp(float x) { return expf(x); }
   static float tanh_derivative(float y) { return 1.0f - y*y; } // input y is activation output
   static float sigmoid_derivative(float y) { return y * (1.0f - y); }
   static float relu_derivative(float y) { return y > 0 ? 1.0f : 0.0f; }
+  static float linear_derivative(float) { return 1.0f; }
 };
 
 #endif
