@@ -43,10 +43,23 @@ public:
   static float relu_activation(float x) { return x > 0.0f ? x : 0.0f; }
   static float linear_activation(float x) { return x; }
   static float softmax_exp(float x) { return std::exp(x); }
-  static float tanh_derivative(float y) { return 1.0f - y*y; } // input y is activation output
-  static float sigmoid_derivative(float y) { return y * (1.0f - y); }
-  static float relu_derivative(float y) { return y > 0 ? 1.0f : 0.0f; }
-  static float linear_derivative(float) { return 1.0f; }
+  static float tanh_derivative(float x) { 
+      float t = std::tanh(x); 
+      return 1.0f - t * t; 
+  }
+
+  static float sigmoid_derivative(float x) { 
+      float s = 1.0f / (1.0f + std::exp(-x)); 
+      return s * (1.0f - s); 
+  }
+
+  static float relu_derivative(float x) { 
+      return x > 0.0f ? 1.0f : 0.0f; 
+  }
+
+  static float linear_derivative(float) { 
+      return 1.0f; 
+  }
 };
 
 #endif

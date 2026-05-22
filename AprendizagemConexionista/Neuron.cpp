@@ -67,14 +67,14 @@ float Neuron::calculate_error ( float weighted_error_next_layer )
       if (activation == ACT_SOFTMAX) {
         error += target - out;
       } else if (activation_derivative) {
-        error += activation_derivative(out) * (target - out);
+        error += activation_derivative(last_sum) * (target - out);
       } else {
         error += (1.0f - out*out) * (target - out);
       }
       break;
     default:
       if (activation_derivative)
-        error += activation_derivative(out) * weighted_error_next_layer;
+        error += activation_derivative(last_sum) * weighted_error_next_layer;
       else
         error += (1.0f - out*out) * weighted_error_next_layer;
       break;

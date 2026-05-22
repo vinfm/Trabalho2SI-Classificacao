@@ -32,6 +32,11 @@ static void normalizeInputs(std::vector<std::vector<double>>& X) {
 }
 
 // Configurable parameters
+
+static const Activation CLASSIFICATION_HIDDEN_LAYER_ACTIVATION = ACT_TANH;
+static const Activation CLASSIFICATION_OUTPUT_LAYER_ACTIVATION = ACT_SOFTMAX;
+static const Activation REGRESSION_HIDDEN_LAYER_ACTIVATION = ACT_TANH;
+static const Activation REGRESSION_OUTPUT_LAYER_ACTIVATION = ACT_LINEAR;
 static const std::vector<int> CLASS_LABELS = {1,2,3,4};
 static const std::vector<int> TRAIN_INPUT_COLUMNS = {4,5,6};
 static const std::vector<int> BLIND_INPUT_COLUMNS = {2,3,4};
@@ -207,8 +212,8 @@ int main(int argc, char** argv) {
     NeuralNetBuilder builderReg(trainReg);
     NeuralNet netReg = builderReg.build_net(NETWORK_LAYER_COUNT, REGRESSION_NEURONS_PER_LAYER, static_cast<int>(nFeat));
     builderReg.set_parameters(netReg, REGRESSION_MOMENTUM, REGRESSION_LEARNING_RATE, 0.0f, BATCH_SIZE, VALIDATION_FRACTION, MIN_ERROR);
-    netReg.set_activation(ACT_TANH);
-    netReg.set_activation_output_layer(ACT_LINEAR);
+    netReg.set_activation(REGRESSION_HIDDEN_LAYER_ACTIVATION);
+    netReg.set_activation_output_layer(REGRESSION_OUTPUT_LAYER_ACTIVATION);
     builderReg.split_dataset(seed);
     builderReg.train_net(netReg, EPOCHS, seed);
 
@@ -217,8 +222,8 @@ int main(int argc, char** argv) {
     NeuralNet netClf = builderClf.build_net(NETWORK_LAYER_COUNT, CLASSIFICATION_NEURONS_PER_LAYER, static_cast<int>(nFeat));
     
     builderClf.set_parameters(netClf, CLASSIFICATION_MOMENTUM, CLASSIFICATION_LEARNING_RATE, 0.0f, BATCH_SIZE, VALIDATION_FRACTION, MIN_ERROR);
-    netClf.set_activation(ACT_TANH);
-    netClf.set_activation_output_layer(ACT_SOFTMAX);
+    netClf.set_activation(CLASSIFICATION_HIDDEN_LAYER_ACTIVATION);
+    netClf.set_activation_output_layer(CLASSIFICATION_OUTPUT_LAYER_ACTIVATION);
     builderClf.split_dataset(seed);
     builderClf.train_net(netClf, EPOCHS, seed);
 
